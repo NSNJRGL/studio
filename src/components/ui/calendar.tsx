@@ -24,7 +24,7 @@ interface CustomDayProps extends DayProps {
 
 // Define the CustomDay component
 function CustomDay({ date, displayMonth, scheduledDatesWithCounts = {} }: CustomDayProps) {
-    const ref = React.useRef<HTMLButtonElement | HTMLDivElement>(null); // Create a ref
+    const buttonRef = React.useRef<HTMLButtonElement>(null);
 
     // Ensure day and displayMonth are valid Date objects before processing
     if (!isValid(date) || !isValid(displayMonth)) {
@@ -38,15 +38,20 @@ function CustomDay({ date, displayMonth, scheduledDatesWithCounts = {} }: Custom
          )}></div>;
     }
 
-    // Call useDayRender inside the custom component, passing the ref
-    const { buttonProps, dayProps: rdpDayProps, isButton, divProps } = useDayRender(date, displayMonth, ref);
+    const { activeModifiers, buttonProps, divProps, isButton, isHidden } = useDayRender(
+        date,
+        displayMonth,
+        buttonRef
+    );
+
+    if (isHidden) {
+        return <div role="gridcell"></div>;
+    }
 
     const dateString = format(date, 'yyyy-MM-dd');
     const count = scheduledDatesWithCounts[dateString];
 
-    // Check if rdpDayProps and modifiers exist before accessing them
-    const hasModifiers = rdpDayProps && rdpDayProps.modifiers;
-    const isSelectedOrScheduled = hasModifiers && (rdpDayProps.modifiers.selected || rdpDayProps.modifiers.scheduled);
+    const isSelectedOrScheduled = activeModifiers.selected || activeModifiers.scheduled;
 
 
     // Render the default button or div with the badge if there's a count
@@ -54,7 +59,7 @@ function CustomDay({ date, displayMonth, scheduledDatesWithCounts = {} }: Custom
         return (
             <div className="relative">
                  {/* Attach ref and spread props */}
-                <button ref={ref as React.RefObject<HTMLButtonElement>} {...buttonProps} {...rdpDayProps} />
+                <button ref={buttonRef} {...buttonProps} />
                 {count && count > 0 && (
                    <Badge
                       variant="secondary"
@@ -74,7 +79,7 @@ function CustomDay({ date, displayMonth, scheduledDatesWithCounts = {} }: Custom
     return (
         <div className="relative">
              {/* Attach ref and spread props */}
-            <div ref={ref as React.RefObject<HTMLDivElement>} {...divProps} {...rdpDayProps} />
+            <div {...divProps} />
             {count && count > 0 && (
                <Badge
                   variant="secondary"
@@ -159,4 +164,3 @@ Calendar.displayName = "Calendar"
 
 // Keep Badge and Button exports if needed elsewhere, but they are standard UI components
 export { Calendar };
-
