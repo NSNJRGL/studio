@@ -102,7 +102,7 @@ export function ProblemInputForm({ onSuccess }: ProblemInputFormProps) {
        // Directly use the structured data from the form
        const problemMetadata: ProblemMetadata = {
          title: inferredTitle, // Use inferred title
-         url: values.url || undefined, // Store undefined if empty string (shouldn't happen due to validation)
+         url: values.url,
          difficulty: values.difficulty,
          dateSolved: values.dateSolved,
          rating: values.rating, // Store the raw rating (1-5)
